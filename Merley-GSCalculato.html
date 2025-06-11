@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merley-Risk-Gestion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Charte graphique */
+        :root {
+            --night-blue: #1A2E40; /* Bleu nuit */
+            --metallic-silver: #BFBFBF; /* Argent métallisé */
+            --dollar-green: #28A745; /* Vert dollar */
+            --light-bg: #F8F9FA;
+            --dark-bg: #2B2B2B;
+            --dark-card-bg: #3A3A3A;
+            --text-color-light: #333;
+            --text-color-dark: #F8F9FA;
+            --border-color-light: #DDD;
+            --border-color-dark: #555;
+            --input-bg-light: #FFF;
+            --input-bg-dark: #444;
+            --good-rr: #28A745; /* Vert */
+            --medium-rr: #FFC107; /* Orange */
+            --bad-rr: #DC3545; /* Rouge */
+            --error-red: #DC3545; /* Rouge pour les erreurs */
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+            color: var(--text-color-light);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
+        }
+
+        body.dark-mode {
+            background-color: var(--dark-bg);
+            color: var(--text-color-dark);
+        }
+
+        .container {
+            background-color: var(--light-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin: 30px 15px;
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        body.dark-mode .container {
+            background-color: var(--dark-card-bg);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            color: var(--night-blue);
+            font-size: 2.2em;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        body.dark-mode header h1 {
+            color: var(--metallic-silver);
+        }
+
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .theme-switch {
+            display: inline-block;
+            height: 34px;
+            position: relative;
+            width: 60px;
+        }
+
+        .theme-switch input {
+            display: none;
+        }
+
+        .slider {
+            background-color: #ccc;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            top: 0;
+            cursor: pointer;
+            position: absolute;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            background-color: #fff;
+            bottom: 4px;
+            content: "";
+            height: 26px;
+            left: 4px;
+            position: absolute;
+            transition: 0.4s;
+            width: 26px;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--night-blue);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        .input-section, .results-section, .history-section {
+            background-color: var(--light-bg);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color-light);
+            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+        }
+
+        body.dark-mode .input-section,
+        body.dark-mode .results-section,
+        body.dark-mode .history-section {
+            background-color: var(--dark-card-bg);
+            border-color: var(--border-color-dark);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            color: var(--night-blue);
+            font-size: 1.6em;
+            margin-top: 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--metallic-silver);
+            padding-bottom: 10px;
+        }
+
+        body.dark-mode h2 {
+            color: var(--metallic-silver);
+            border-color: var(--border-color-dark);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color-light);
+        }
+
+        body.dark-mode label {
+            color: var(--text-color-dark);
+        }
+
+        input[type="number"],
+        select {
+            width: calc(100% - 20px);
+            padding: 12px 10px;
+            border: 1px solid var(--border-color-light);
+            border-radius: 6px;
+            font-size: 1em;
+            background-color: var(--input-bg-light);
+            color: var(--text-color-light);
+            transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+        }
+
+        body.dark-mode input[type="number"],
+        body.dark-mode select {
+            border-color: var(--border-color-dark);
+            background-color: var(--input-bg-dark);
+            color: var(--text-color-dark);
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--night-blue);
+            box-shadow: 0 0 0 3px rgba(26, 46, 64, 0.2);
+        }
+
+        body.dark-mode input[type="number"]:focus,
+        body.dark-mode select:focus {
+            border-color: var(--metallic-silver);
+            box-shadow: 0 0 0 3px rgba(191, 191, 191, 0.2);
+        }
+
+        .error-message {
+            color: var(--error-red);
+            font-size: 0.9em;
+            margin-top: 5px;
+            min-height: 1.2em; /* To prevent layout shift */
+        }
+
+        button {
+            background-color: var(--night-blue);
+            color: white;
+            padding: 14px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #152535;
+            transform: translateY(-2px);
+        }
+
+        body.dark-mode button {
+            background-color: var(--metallic-silver);
+            color: var(--night-blue);
+        }
+
+        body.dark-mode button:hover {
+            background-color: #D3D3D3;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .result-item {
+            background-color: var(--input-bg-light);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color-light);
+            text-align: center;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        body.dark-mode .result-item {
+            background-color: var(--input-bg-dark);
+            border-color: var(--border-color-dark);
+        }
+
+        .result-item h3 {
+            margin-top: 0;
+            color: var(--night-blue);
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        body.dark-mode .result-item h3 {
+            color: var(--metallic-silver);
+        }
+
+        .result-item p {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--dollar-green);
+            margin: 0;
+        }
+
+        .result-item p.loss {
+            color: var(--bad-rr);
+        }
+
+        .rr-indicator {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+
+        .rr-good { background-color: var(--good-rr); }
+        .rr-medium { background-color: var(--medium-rr); }
+        .rr-bad { background-color: var(--bad-rr); }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            margin-left: 5px;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: var(--night-blue);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position the tooltip above the text */
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9em;
+        }
+
+        body.dark-mode .tooltip .tooltiptext {
+            background-color: var(--dark-card-bg);
+            border: 1px solid var(--border-color-dark);
+        }
+
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%; /* At the bottom of the tooltip */
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--night-blue) transparent transparent transparent;
+        }
+
+        body.dark-mode .tooltip .tooltiptext::after {
+            border-color: var(--dark-card-bg) transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .history-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .history-item {
+            background-color: var(--input-bg-light);
+            border: 1px solid var(--border-color-light);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        body.dark-mode .history-item {
+            background-color: var(--input-bg-dark);
+            border-color: var(--border-color-dark);
+        }
+
+        .history-item div {
+            font-size: 0.9em;
+        }
+
+        .history-item strong {
+            color: var(--night-blue);
+        }
+
+        body.dark-mode .history-item strong {
+            color: var(--metallic-silver);
+        }
+
+        .history-item .rr-indicator-small {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+
+        .clear-history-btn {
+            background-color: #DC3545;
+            margin-top: 20px;
+        }
+        .clear-history-btn:hover {
+            background-color: #C82333;
+        }
+
+        body.dark-mode .clear-history-btn {
+            background-color: #B22222;
+        }
+        body.dark-mode .clear-history-btn:hover {
+            background-color: #8B0000;
+        }
+
+        .favorites-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .favorite-pair {
+            background-color: var(--night-blue);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .favorite-pair:hover {
+            background-color: #152535;
+        }
+
+        body.dark-mode .favorite-pair {
+            background-color: var(--metallic-silver);
+            color: var(--night-blue);
+        }
+        body.dark-mode .favorite-pair:hover {
+            background-color: #D3D3D3;
+        }
+
+        .add-favorite-btn {
+            background-color: #007BFF;
+            margin-top: 10px;
+        }
+        .add-favorite-btn:hover {
+            background-color: #0056b3;
+        }
+        body.dark-mode .add-favorite-btn {
+            background-color: #6c757d;
+        }
+        body.dark-mode .add-favorite-btn:hover {
+            background-color: #5a6268;
+        }
+
+
+        .save-trade-btn {
+            background-color: var(--dollar-green);
+            margin-top: 15px;
+        }
+
+        .save-trade-btn:hover {
+            background-color: #218838;
+        }
+
+        body.dark-mode .save-trade-btn {
+            background-color: #4CAF50;
+        }
+        body.dark-mode .save-trade-btn:hover {
+            background-color: #388E3C;
+        }
+
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px 10px;
+                padding: 20px;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.4em;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            input[type="number"],
+            select,
+            button {
+                font-size: 0.95em;
+                padding: 10px;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr; /* Stack on small screens */
+            }
+
+            .result-item p {
+                font-size: 1.3em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 15px 5px;
+                padding: 15px;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            header h1 {
+                font-size: 1.6em;
+            }
+
+            .input-section, .results-section, .history-section {
+                padding: 15px;
+            }
+
+            .tooltip .tooltiptext {
+                width: 180px;
+                margin-left: -90px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Merley-Risk-Gestion</h1>
+            <div class="theme-switch-wrapper">
+                <label class="theme-switch" for="checkbox">
+                    <input type="checkbox" id="checkbox" />
+                    <div class="slider round"></div>
+                </label>
+                <span style="margin-left: 10px;">Mode Sombre</span>
+            </div>
+        </header>
+
+        <section class="input-section">
+            <h2>Paramètres du Trade</h2>
+            <div class="form-group">
+                <label for="capital">Capital ($) <span class="tooltip">ℹ️<span class="tooltiptext">Votre capital total disponible pour le trading.</span></span></label>
+                <input type="number" id="capital" value="10000" min="1" step="any">
+                <div id="capitalError" class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="pair">Choix de la Paire <span class="tooltip">ℹ️<span class="tooltiptext">Sélectionnez la paire de devises, l'or ou le Bitcoin.</span></span></label>
+                <select id="pair">
+                    <option value="EUR/USD">EUR/USD</option>
+                    <option value="GBP/USD">GBP/USD</option>
+                    <option value="USD/JPY">USD/JPY</option>
+                    <option value="AUD/USD">AUD/USD</option>
+                    <option value="NZD/USD">NZD/USD</option>
+                    <option value="USD/CAD">USD/CAD</option>
+                    <option value="USD/CHF">USD/CHF</option>
+                    <option value="EUR/JPY">EUR/JPY</option>
+                    <option value="GBP/JPY">GBP/JPY</option>
+                    <option value="EUR/CAD">EUR/CAD</option>
+                    <option value="XAU/USD">XAU/USD (Or)</option>
+                    <option value="BTC/USD">BTC/USD (Bitcoin)</option>
+                </select>
+                <div class="favorites-section" id="favoritesSection">
+                    </div>
+                <button id="addFavoriteBtn" class="add-favorite-btn">Ajouter aux Favoris</button>
+            </div>
+
+            <div class="form-group">
+                <label for="entryPrice">Prix d'Entrée (PE) <span class="tooltip">ℹ️<span class="tooltiptext">Le prix auquel vous prévoyez d'entrer sur le marché.</span></span></label>
+                <input type="number" id="entryPrice" step="any">
+                <div id="entryPriceError" class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="takeProfit">Take Profit (TP) <span class="tooltip">ℹ️<span class="tooltiptext">Le prix auquel vous souhaitez clôturer la position en profit.</span></span></label>
+                <input type="number" id="takeProfit" step="any">
+                <div id="takeProfitError" class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="stopLoss">Stop Loss (SL) <span class="tooltip">ℹ️<span class="tooltiptext">Le prix auquel vous souhaitez clôturer la position pour limiter les pertes.</span></span></label>
+                <input type="number" id="stopLoss" step="any">
+                <div id="stopLossError" class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="lotSize">Taille du Lot (ex: 0.01) <span class="tooltip">ℹ️<span class="tooltiptext">La taille du lot de votre position (ex: 0.01 pour un micro lot).</span></span></label>
+                <input type="number" id="lotSize" value="0.01" min="0.000001" step="any">
+                <div id="lotSizeError" class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="riskPercent">% de Risque à Engager (Optionnel) <span class="tooltip">ℹ️<span class="tooltiptext">Le pourcentage de votre capital que vous êtes prêt à risquer sur ce trade. Si renseigné, la taille du lot sera ajustée automatiquement.</span></span></label>
+                <input type="number" id="riskPercent" min="0.01" max="100" step="0.01">
+                <div id="riskPercentError" class="error-message"></div>
+            </div>
+
+            <button id="calculateBtn">Calculer le Risque</button>
+        </section>
+
+        <section class="results-section">
+            <h2>Résultats du Calcul</h2>
+            <div class="results-grid">
+                <div class="result-item">
+                    <h3>Pips au SL</h3>
+                    <p id="pipsToSL">-</p>
+                </div>
+                <div class="result-item">
+                    <h3>Pips au TP</h3>
+                    <p id="pipsToTP">-</p>
+                </div>
+                <div class="result-item">
+                    <h3>Valeur du Pip ($)</h3>
+                    <p id="pipValue">-</p>
+                </div>
+                <div class="result-item">
+                    <h3>Montant Perdu si SL</h3>
+                    <p id="lossAmount" class="loss">-</p>
+                </div>
+                <div class="result-item">
+                    <h3>Montant Gagné si TP</h3>
+                    <p id="gainAmount">-</p>
+                </div>
+                <div class="result-item">
+                    <h3>Ratio Risque/Rendement (RR)</h3>
+                    <p id="rrRatio">- <span id="rrIndicator" class="rr-indicator"></span></p>
+                </div>
+                <div class="result-item">
+                    <h3>Capital Final si TP</h3>
+                    <p id="finalCapitalTP">-</p>
+                </div>
+                <div class="result-item">
+                    <h3>Capital Final si SL</h3>
+                    <p id="finalCapitalSL" class="loss">-</p>
+                </div>
+            </div>
+            <button id="saveTradeBtn" class="save-trade-btn">Enregistrer ce Trade</button>
+        </section>
+
+        <section class="history-section">
+            <h2>Historique des Calculs</h2>
+            <ul id="historyList" class="history-list">
+                </ul>
+            <button id="clearHistoryBtn" class="clear-history-btn">Vider l'historique</button>
+        </section>
+    </div>
+
+    <script>
+        // DOM Elements
+        const capitalInput = document.getElementById('capital');
+        const pairSelect = document.getElementById('pair');
+        const entryPriceInput = document.getElementById('entryPrice');
+        const takeProfitInput = document.getElementById('takeProfit');
+        const stopLossInput = document.getElementById('stopLoss');
+        const lotSizeInput = document.getElementById('lotSize');
+        const riskPercentInput = document.getElementById('riskPercent');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const saveTradeBtn = document.getElementById('saveTradeBtn');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        const historyList = document.getElementById('historyList');
+        const themeSwitch = document.getElementById('checkbox');
+        const addFavoriteBtn = document.getElementById('addFavoriteBtn');
+        const favoritesSection = document.getElementById('favoritesSection');
+
+        // Error message elements
+        const capitalError = document.getElementById('capitalError');
+        const entryPriceError = document.getElementById('entryPriceError');
+        const takeProfitError = document.getElementById('takeProfitError');
+        const stopLossError = document.getElementById('stopLossError');
+        const lotSizeError = document.getElementById('lotSizeError');
+        const riskPercentError = document.getElementById('riskPercentError');
+
+
+        // Results Display Elements
+        const pipsToSLDisplay = document.getElementById('pipsToSL');
+        const pipsToTPDisplay = document.getElementById('pipsToTP');
+        const pipValueDisplay = document.getElementById('pipValue');
+        const lossAmountDisplay = document.getElementById('lossAmount');
+        const gainAmountDisplay = document.getElementById('gainAmount');
+        const rrRatioDisplay = document.getElementById('rrRatio');
+        const rrIndicator = document.getElementById('rrIndicator');
+        const finalCapitalTPDisplay = document.getElementById('finalCapitalTP');
+        const finalCapitalSLDisplay = document.getElementById('finalCapitalSL');
+
+        // --- Core Logic & Data ---
+
+        // Define pip sizes for different instruments/pairs
+        const pipSizes = {
+            'EUR/USD': 0.0001, 'GBP/USD': 0.0001, 'AUD/USD': 0.0001, 'NZD/USD': 0.0001, 'USD/CAD': 0.0001, 'USD/CHF': 0.0001, 'EUR/CAD': 0.0001,
+            'USD/JPY': 0.01, 'EUR/JPY': 0.01, 'GBP/JPY': 0.01, // JPY pairs
+            'XAU/USD': 0.01, // Gold: 0.01 price movement is 1 pip
+            'BTC/USD': 0.01 // Bitcoin: 0.01 price movement is 1 pip (simplified for general CFD)
+        };
+
+        // Define contract sizes for calculating pip value
+        // Standard contract size for 1 full lot (1.00)
+        const contractSizes = {
+            'forex_standard': 100000, // For major forex pairs (EUR/USD, GBP/USD, etc.)
+            'forex_jpy': 100000, // For JPY pairs
+            'XAU/USD': 100, // 100 ounces per standard lot
+            'BTC/USD': 1 // 1 BTC per standard lot (can vary greatly by broker)
+        };
+
+        let favorites = JSON.parse(localStorage.getItem('merleyRiskFavorites')) || [];
+        let history = JSON.parse(localStorage.getItem('merleyRiskHistory')) || [];
+
+        // --- Utility Functions ---
+
+        function showError(element, message) {
+            if (element) {
+                element.textContent = message;
+            }
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+        }
+
+        function calculatePips(entry, target, pair) {
+            const pipSize = pipSizes[pair] || 0.0001; // Default to standard forex pip size
+            return Math.abs(entry - target) / pipSize;
+        }
+
+        function calculatePipValue(pair, lotSize, entryPrice) {
+            let pipValue = 0;
+            const pipSize = pipSizes[pair] || 0.0001;
+
+            if (pair.includes('JPY')) {
+                // For JPY pairs, value of 1 pip for 1 standard lot (100,000 units)
+                // Formula: (Lot Size * Contract Size * Pip Size) / Current Exchange Rate (entryPrice for USD/JPY)
+                // Example: (0.01 lot * 100,000 units * 0.01 pip size) / USD_JPY_Rate
+                // This correctly calculates the pip value in USD.
+                pipValue = (lotSize * contractSizes.forex_jpy * pipSize) / entryPrice;
+            } else if (pair === 'XAU/USD') {
+                // For XAU/USD (Gold), a common retail CFD convention:
+                // 0.01 lot typically represents 1 ounce. A 0.01$ price movement (1 pip)
+                // on this 1 ounce is valued at $0.01.
+                // However, many retail platforms standardize the pip value for XAU/USD
+                // so that a 0.01 lot (micro lot) has a value of $0.10 per 0.01 price move.
+                // This makes the numbers more manageable for traders.
+                pipValue = lotSize * 10; // For 0.01 lot, pip value is $0.10.
+            } else if (pair === 'BTC/USD') {
+                // For BTC/USD (Bitcoin), similar to XAU/USD, broker conventions vary.
+                // A common retail CFD simplification for 0.01 lot:
+                // 1 pip (a $0.01 price movement) is valued at $0.10 for a 0.01 lot.
+                // This provides a consistent and understandable pip value for micro-lots.
+                pipValue = lotSize * 10; // For 0.01 lot, pip value is $0.10.
+            } else {
+                // Standard Forex pairs where USD is quote currency (EUR/USD, GBP/USD, etc.)
+                // For 0.01 lot (1,000 units), 1 pip (0.0001) is valued at $0.10.
+                pipValue = lotSize * 10; // (lotSize * contractSizes.forex_standard * pipSize)
+            }
+            return pipValue;
+        }
+
+        function formatNumber(num, decimals = 2) {
+            if (typeof num !== 'number' || isNaN(num)) {
+                return '-';
+            }
+            return parseFloat(num.toFixed(decimals));
+        }
+
+        function resetResultDisplays() {
+            pipsToSLDisplay.textContent = '-';
+            pipsToTPDisplay.textContent = '-';
+            pipValueDisplay.textContent = '-';
+            lossAmountDisplay.textContent = '-';
+            gainAmountDisplay.textContent = '-';
+            rrRatioDisplay.textContent = '-';
+            rrIndicator.className = 'rr-indicator';
+            finalCapitalTPDisplay.textContent = '-';
+            finalCapitalSLDisplay.textContent = '-';
+        }
+
+        function performCalculation() {
+            clearErrors(); // Clear previous errors
+
+            const capital = parseFloat(capitalInput.value);
+            const pair = pairSelect.value;
+            const entryPrice = parseFloat(entryPriceInput.value);
+            const takeProfit = parseFloat(takeProfitInput.value);
+            const stopLoss = parseFloat(stopLossInput.value);
+            let lotSize = parseFloat(lotSizeInput.value);
+            const riskPercent = parseFloat(riskPercentInput.value);
+
+            let hasError = false;
+
+            if (isNaN(capital) || capital <= 0) {
+                showError(capitalError, 'Veuillez entrer un capital valide (> 0).');
+                hasError = true;
+            }
+            if (isNaN(entryPrice) || entryPrice <= 0) {
+                showError(entryPriceError, 'Veuillez entrer un prix d\'entrée valide (> 0).');
+                hasError = true;
+            }
+            if (isNaN(takeProfit) || takeProfit <= 0) {
+                showError(takeProfitError, 'Veuillez entrer un Take Profit valide (> 0).');
+                hasError = true;
+            }
+            if (isNaN(stopLoss) || stopLoss <= 0) {
+                showError(stopLossError, 'Veuillez entrer un Stop Loss valide (> 0).');
+                hasError = true;
+            }
+
+            if (hasError) {
+                resetResultDisplays();
+                return;
+            }
+
+            // Determine pip size for the selected pair
+            const currentPipSize = pipSizes[pair] || 0.0001;
+
+            // Calculate initial pips to SL (needed for lot size calculation if riskPercent is used)
+            const initialPipsToSL = Math.abs(entryPrice - stopLoss) / currentPipSize;
+
+            // Adjust lot size if risk percent is provided
+            if (!isNaN(riskPercent) && riskPercent > 0) {
+                if (riskPercent > 100) {
+                    showError(riskPercentError, '% de risque ne peut pas dépasser 100%.');
+                    hasError = true;
+                }
+                if (initialPipsToSL === 0) {
+                    showError(stopLossError, "Le Stop Loss doit être différent du Prix d'Entrée pour calculer la taille de lot idéale.");
+                    hasError = true;
+                }
+
+                if (hasError) {
+                    resetResultDisplays();
+                    return;
+                }
+
+                const riskAmount = capital * (riskPercent / 100);
+
+                // Calculate base pip value for a 'standard' 0.01 lot for the current pair
+                let basePipValueForOneMicroLot;
+                if (pair.includes('JPY')) {
+                    // For JPY, 1 micro lot (0.01 lot) is 1,000 units. Pip value = (0.01 * 1000) / entryPrice
+                    basePipValueForOneMicroLot = (0.01 * 1000) / entryPrice;
+                } else if (pair === 'XAU/USD' || pair === 'BTC/USD') {
+                    basePipValueForOneMicroLot = 0.10; // As per our convention
+                } else {
+                    basePipValueForOneMicroLot = 0.10; // Standard micro lot pip value
+                }
+                
+                if (basePipValueForOneMicroLot === 0 || isNaN(basePipValueForOneMicroLot)) {
+                    showError(lotSizeError, "Impossible de calculer la valeur du pip. Vérifiez le prix d'entrée.");
+                    hasError = true;
+                }
+
+                if (hasError) {
+                    resetResultDisplays();
+                    return;
+                }
+
+                const totalRiskPerMicroLot = initialPipsToSL * basePipValueForOneMicroLot;
+                
+                let calculatedLotSize;
+                if (totalRiskPerMicroLot === 0) {
+                    showError(lotSizeError, "Le risque par lot est nul. Vérifiez le SL ou les valeurs d'entrée.");
+                    hasError = true;
+                } else {
+                    calculatedLotSize = (riskAmount / totalRiskPerMicroLot) * 0.01;
+                    calculatedLotSize = parseFloat(calculatedLotSize.toFixed(2)); // Round to 2 decimal places for lot size
+                }
+
+                if (hasError) {
+                    resetResultDisplays();
+                    return;
+                }
+
+                lotSizeInput.value = calculatedLotSize; // Update UI with calculated lot size
+                lotSize = calculatedLotSize; // Use this new lot size for further calculations
+            }
+
+            if (isNaN(lotSize) || lotSize <= 0) {
+                showError(lotSizeError, 'Veuillez entrer une Taille du Lot valide (> 0) ou un % de Risque.');
+                hasError = true;
+            }
+
+            if (hasError) {
+                resetResultDisplays();
+                return;
+            }
+
+            // Recalculate pips with the actual pipSize
+            const pipsToSL = Math.abs(entryPrice - stopLoss) / currentPipSize;
+            const pipsToTP = Math.abs(takeProfit - entryPrice) / currentPipSize;
+
+            // Calculate the actual pip value based on (potentially adjusted) lot size
+            const actualPipValue = calculatePipValue(pair, lotSize, entryPrice);
+
+            const lossAmount = pipsToSL * actualPipValue;
+            const gainAmount = pipsToTP * actualPipValue;
+            const rrRatio = lossAmount === 0 ? 0 : (gainAmount / lossAmount); // Handle division by zero
+
+            const finalCapitalTP = capital + gainAmount;
+            const finalCapitalSL = capital - lossAmount;
+
+            // Update UI
+            pipsToSLDisplay.textContent = formatNumber(pipsToSL, 2);
+            pipsToTPDisplay.textContent = formatNumber(pipsToTP, 2);
+            pipValueDisplay.textContent = `$${formatNumber(actualPipValue, 4)}`; // More decimals for pip value
+            lossAmountDisplay.textContent = `-$${formatNumber(lossAmount, 2)}`;
+            gainAmountDisplay.textContent = `$${formatNumber(gainAmount, 2)}`;
+            rrRatioDisplay.textContent = isNaN(rrRatio) ? 'N/A' : `${formatNumber(rrRatio, 2)}`;
+
+            rrIndicator.className = 'rr-indicator'; // Reset classes
+            if (rrRatio >= 2) {
+                rrIndicator.classList.add('rr-good');
+            } else if (rrRatio > 1 && rrRatio < 2) {
+                rrIndicator.classList.add('rr-medium');
+            } else {
+                rrIndicator.classList.add('rr-bad');
+            }
+
+            finalCapitalTPDisplay.textContent = `$${formatNumber(finalCapitalTP, 2)}`;
+            finalCapitalSLDisplay.textContent = `$${formatNumber(finalCapitalSL, 2)}`;
+        }
+
+        function saveTrade() {
+            // Check if a calculation has been performed and is valid
+            if (pipsToSLDisplay.textContent === '-' || parseFloat(capitalInput.value) <= 0) {
+                // Instead of alert, show an internal message or simply do nothing
+                showError(document.getElementById('calculateBtn').nextElementSibling, 'Veuillez effectuer un calcul valide avant d\'enregistrer le trade.');
+                return;
+            }
+            clearErrors(); // Clear any existing errors
+
+            const tradeData = {
+                timestamp: new Date().toLocaleString(),
+                capital: parseFloat(capitalInput.value),
+                pair: pairSelect.value,
+                entryPrice: parseFloat(entryPriceInput.value),
+                takeProfit: parseFloat(takeProfitInput.value),
+                stopLoss: parseFloat(stopLossInput.value),
+                lotSize: parseFloat(lotSizeInput.value),
+                riskPercent: isNaN(parseFloat(riskPercentInput.value)) ? 'N/A' : `${formatNumber(parseFloat(riskPercentInput.value), 2)}%`,
+                pipsToSL: pipsToSLDisplay.textContent,
+                pipsToTP: pipsToTPDisplay.textContent,
+                pipValue: pipValueDisplay.textContent,
+                lossAmount: lossAmountDisplay.textContent,
+                gainAmount: gainAmountDisplay.textContent,
+                rrRatio: rrRatioDisplay.textContent,
+                rrClass: rrIndicator.classList.contains('rr-good') ? 'rr-good' : (rrIndicator.classList.contains('rr-medium') ? 'rr-medium' : 'rr-bad'),
+                finalCapitalTP: finalCapitalTPDisplay.textContent,
+                finalCapitalSL: finalCapitalSLDisplay.textContent
+            };
+
+            history.unshift(tradeData); // Add to the beginning
+            if (history.length > 10) { // Keep last 10 calculations
+                history.pop();
+            }
+            localStorage.setItem('merleyRiskHistory', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            historyList.innerHTML = '';
+            if (history.length === 0) {
+                historyList.innerHTML = '<li style="text-align: center; color: #666;">Aucun calcul enregistré pour l\'instant.</li>';
+                return;
+            }
+            history.forEach(trade => {
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                li.innerHTML = `
+                    <div><strong>Date:</strong> ${trade.timestamp}</div>
+                    <div><strong>Paire:</strong> ${trade.pair}</div>
+                    <div><strong>Capital:</strong> $${formatNumber(trade.capital)}</div>
+                    <div><strong>PE:</strong> ${trade.entryPrice}</div>
+                    <div><strong>TP:</strong> ${trade.takeProfit}</div>
+                    <div><strong>SL:</strong> ${trade.stopLoss}</div>
+                    <div><strong>Lot:</strong> ${trade.lotSize}</div>
+                    <div><strong>Pips SL:</strong> ${trade.pipsToSL}</div>
+                    <div><strong>Pips TP:</strong> ${trade.pipsToTP}</div>
+                    <div><strong>Pip Val:</strong> ${trade.pipValue}</div>
+                    <div><strong>Perte SL:</strong> <span class="loss">${trade.lossAmount}</span></div>
+                    <div><strong>Gain TP:</strong> ${trade.gainAmount}</div>
+                    <div><strong>RR:</strong> ${trade.rrRatio} <span class="rr-indicator-small ${trade.rrClass}"></span></div>
+                    <div><strong>Capital TP:</strong> ${trade.finalCapitalTP}</div>
+                    <div><strong>Capital SL:</strong> <span class="loss">${trade.finalCapitalSL}</span></div>
+                `;
+                historyList.appendChild(li);
+            });
+        }
+
+        function clearHistory() {
+            if (confirm('Êtes-vous sûr de vouloir vider tout l\'historique des calculs ?')) {
+                history = [];
+                localStorage.removeItem('merleyRiskHistory');
+                renderHistory();
+            }
+        }
+
+        function renderFavorites() {
+            favoritesSection.innerHTML = ''; // Clear existing favorites
+            const availablePairs = Array.from(pairSelect.options).map(option => option.value);
+
+            favorites.forEach(pair => {
+                // Ensure the favorited pair actually exists in the select options
+                if (availablePairs.includes(pair)) {
+                    const span = document.createElement('span');
+                    span.className = 'favorite-pair';
+                    span.textContent = pair;
+                    span.onclick = () => {
+                        pairSelect.value = pair;
+                        performCalculation(); // Auto-calculate on favorite selection
+                    };
+                    favoritesSection.appendChild(span);
+                }
+            });
+        }
+
+        function addFavorite() {
+            const currentPair = pairSelect.value;
+            if (!favorites.includes(currentPair)) {
+                favorites.push(currentPair);
+                localStorage.setItem('merleyRiskFavorites', JSON.stringify(favorites));
+                renderFavorites();
+            } else {
+                // Replaced alert with a more user-friendly message
+                showError(favoritesSection, `${currentPair} est déjà dans vos favoris.`);
+            }
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        }
+
+        function applySavedTheme() {
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                themeSwitch.checked = true;
+            }
+        }
+
+        // --- Event Listeners ---
+        calculateBtn.addEventListener('click', performCalculation);
+        saveTradeBtn.addEventListener('click', saveTrade);
+        clearHistoryBtn.addEventListener('click', clearHistory);
+        themeSwitch.addEventListener('change', toggleDarkMode);
+        addFavoriteBtn.addEventListener('click', addFavorite);
+
+        // Auto-calculate on input change for a dynamic experience
+        document.querySelectorAll('#capital, #pair, #entryPrice, #takeProfit, #stopLoss, #lotSize, #riskPercent').forEach(element => {
+            element.addEventListener('input', performCalculation);
+            element.addEventListener('change', performCalculation); // For select elements
+        });
+
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            applySavedTheme();
+            renderHistory();
+            renderFavorites();
+            // Initial calculation with default values or last saved values
+            performCalculation(); 
+        });
+    </script>
+</body>
+</html>
